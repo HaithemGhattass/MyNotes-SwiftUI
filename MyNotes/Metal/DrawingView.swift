@@ -27,7 +27,7 @@ class DrawingView: MTKView {
     
     init(frame frameRect: CGRect, brush: Brush, device: MTLDevice?) {
         self.selectedBrush = brush
-        super.init(frame: frameRect, device: device)
+        super.init(frame: frameRect , device: device)
         loadSavedDrawingData() // Load saved drawing data when initializing
 
         setupGestureRecognizer()
@@ -65,6 +65,21 @@ class DrawingView: MTKView {
         }
     }
 
+    @objc private func handlePinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        guard gesture.numberOfTouches == 2 else { return }
+
+        if gesture.state == .changed {
+            let pinchCenter = CGPoint(x: gesture.location(ofTouch: 0, in: self).x + gesture.location(ofTouch: 1, in: self).x,
+                                      y: gesture.location(ofTouch: 0, in: self).y + gesture.location(ofTouch: 1, in: self).y)
+            let scale = gesture.scale
+
+            
+            frame = CGRect(x:0,y:0,width: frame.size.width * scale,height: frame.size.height * scale)
+            gesture.scale = 1.0 // Reset the scale to avoid cumulative scaling
+            
+        }
+    }
+
 
 
     
@@ -73,6 +88,10 @@ class DrawingView: MTKView {
     }
 
     private func setupGestureRecognizer() {
+        let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchGesture(_:)))
+        self.addGestureRecognizer(pinchGesture)
+        pinchGesture.delegate = self // Set the delegate for the pinch gesture recognizer
+
         let panGesture = DrawingGestureRecognizer()
         panGesture.maximumNumberOfTouches = 1
         panGesture.delegate = self
@@ -142,15 +161,16 @@ class DrawingView: MTKView {
         let brushSize = selectedBrush.width.cgFloat
         let color = selectedBrush.color.uiColor
         
-        var newPoints: [Point] = [] // Collect points in a temporary array
+       // var newPoints: [Point] = [] // Collect points in a temporary array
         
         for i in 0 ... Int(d) {
             let p = d <= 0 ? point : quadBezierPoint(t: CGFloat(i) / CGFloat(d), start: mid1, c1: previousLocation, end: mid2)
             let newPoint = Point(location: p, parentSize: self.bounds.size * contentScaleFactor, color: color, size: brushSize)
-            newPoints.append(newPoint)
+            points.append(newPoint)
         }
         
-        points.append(contentsOf: newPoints) // Append all new points to the main array
+        
+     //  points.append(contentsOf: newPoints) // Append all new points to the main array
         saveDrawingData() // Save the data after all points have been added
     }
 
@@ -169,12 +189,15 @@ class DrawingView: MTKView {
     
 }
 
+
+
 extension DrawingView: UIGestureRecognizerDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         guard let bottomView = self.subviews.first(where: { $0 is EditorBottomView }) else { return true }
         return bottomView.hitTest(touch.location(in: bottomView), with: nil) == nil
     }
+
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
@@ -183,5 +206,6 @@ extension DrawingView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return false
     }
+    
 
 }
