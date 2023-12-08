@@ -18,7 +18,7 @@ class DrawingView: MTKView {
     var drawBegin: (()->Void)?
     var drawEnd: (()->Void)?
     var clear: (()->Void)?
-    
+
     override var frame: CGRect {
         didSet {
             delegate?.mtkView(self, drawableSizeWillChange: frame.size)
@@ -28,8 +28,45 @@ class DrawingView: MTKView {
     init(frame frameRect: CGRect, brush: Brush, device: MTLDevice?) {
         self.selectedBrush = brush
         super.init(frame: frameRect, device: device)
+        loadSavedDrawingData() // Load saved drawing data when initializing
+
         setupGestureRecognizer()
+
+
+        
     }
+    
+
+
+    
+    // Load saved drawing data from UserDefaults
+    private func loadSavedDrawingData() {
+        if let savedDataString = UserDefaults.standard.string(forKey: "drawingData"),
+           let data = savedDataString.data(using: .utf8) {
+            do {
+                let decoder = JSONDecoder()
+                self.points = try decoder.decode([Point].self, from: data)
+                print(points)
+            } catch {
+                print("Error decoding saved drawing data: \(error.localizedDescription)")
+            }
+        }
+    }
+    @objc private func saveDrawingData() {
+        let encoder = JSONEncoder()
+        do {
+            let data = try encoder.encode(points)
+            if let encodedString = String(data: data, encoding: .utf8) {
+                
+                UserDefaults.standard.set(encodedString, forKey: "drawingData")
+            }
+        } catch {
+            print("Error encoding drawing data: \(error.localizedDescription)")
+        }
+    }
+
+
+
     
     @available(*, unavailable) required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -73,17 +110,21 @@ class DrawingView: MTKView {
         
         let gestureFinishedHandler: ((DrawingGestureRecognizer.touchesResponse) -> Void)? = { [weak self] _ in
             guard let self else { return }
+
             self.previousLocation = nil
             self.previousPreviousLocation = nil
 //            self.points.append([])
             self.drawEnd?()
+            
         }
         
         panGesture.touchesEndedHandler = gestureFinishedHandler
         panGesture.touchesCancelledHandler = gestureFinishedHandler
 
         addGestureRecognizer(panGesture)
+
     }
+    
     
     private func draw(at point: CGPoint) {
         let previousPreviousLocation = self.previousPreviousLocation ?? point
@@ -101,12 +142,16 @@ class DrawingView: MTKView {
         let brushSize = selectedBrush.width.cgFloat
         let color = selectedBrush.color.uiColor
         
+        var newPoints: [Point] = [] // Collect points in a temporary array
+        
         for i in 0 ... Int(d) {
             let p = d <= 0 ? point : quadBezierPoint(t: CGFloat(i) / CGFloat(d), start: mid1, c1: previousLocation, end: mid2)
-            let point = Point(location: p, parentSize: self.bounds.size * contentScaleFactor, color: color, size: brushSize)
-            points.append(point)
-//            points[points.count - 1].append(point)
+            let newPoint = Point(location: p, parentSize: self.bounds.size * contentScaleFactor, color: color, size: brushSize)
+            newPoints.append(newPoint)
         }
+        
+        points.append(contentsOf: newPoints) // Append all new points to the main array
+        saveDrawingData() // Save the data after all points have been added
     }
 
     private func quadBezierPoint(t: CGFloat, start: CGPoint, c1: CGPoint, end: CGPoint) -> CGPoint {
@@ -121,6 +166,7 @@ class DrawingView: MTKView {
         let tt = t * t
         return start * tt_ + 2.0 * c1 * t_ * t + end * tt
     }
+    
 }
 
 extension DrawingView: UIGestureRecognizerDelegate {

@@ -34,10 +34,11 @@ struct TextureVertex {
     }
 }
 
-struct Point {
+struct Point: Codable {
     var position: vector_float4
     var color: vector_float4
     var size: Float
+
 
     init(position: vector_float4, color: vector_float4, size: Float) {
         self.position = position
@@ -57,4 +58,5 @@ struct Point {
         let y = yK == 0.5 ? 0.0 : (yK > 0.5 ? (1 - yK / 0.5) : 1 - (yK / 0.5))
         self.init(x: x, y: y, color: color, size: size)
     }
+    
 }
