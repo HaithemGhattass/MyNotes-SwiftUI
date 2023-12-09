@@ -88,6 +88,7 @@
 		D5B0B3232B22926100F6ADC7 /* UIView + Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + Helpers.swift"; sourceTree = "<group>"; };
 		D5B0B3252B22927200F6ADC7 /* UIView+Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Constraints.swift"; sourceTree = "<group>"; };
 		D5B0B3272B2293F700F6ADC7 /* DrawingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingViewController.swift; sourceTree = "<group>"; };
+		D5B0B32A2B24728500F6ADC7 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +105,7 @@
 		D5B0B2BF2B22890300F6ADC7 = {
 			isa = PBXGroup;
 			children = (
+				D5B0B32A2B24728500F6ADC7 /* readme.md */,
 				D5B0B2CA2B22890400F6ADC7 /* MyNotes */,
 				D5B0B2C92B22890400F6ADC7 /* Products */,
 			);
