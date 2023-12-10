@@ -17,7 +17,7 @@
 ## Usage
 ### Drawing Mode: By default, the app opens in drawing mode. Use your finger or a stylus to draw on the canvas. Adjust the color and thickness using the controls at the bottom of the screen.
 
-###E raser Mode: Tap the "Eraser" button to switch to eraser mode. In this mode, drawing changes to an erasing action, removing elements from the canvas.
+### Eraser Mode: Tap the "Eraser" button to switch to eraser mode. In this mode, drawing changes to an erasing action, removing elements from the canvas.
 
-##Contributing
+## Contributing
 ### Contributions to  myNotes  are welcome! If you have any suggestions, enhancements, or bug fixes, please feel free to open an issue or submit a pull request.
